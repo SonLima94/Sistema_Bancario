@@ -1,0 +1,159 @@
+#Separar as funções existente de saque, deposito e extratoem funções.
+#Criar duas novas funções: cadastrar usuário (cliente)
+# e cadastrar conta bancária. Precisamos deixar nosso código mais modularizado, para isso
+#vamos criar funções para operações existentes: sacar, depositar e visualizar histórico.
+#Além disso, para a versão 2 do nosso sistema precisamos criar 2 novas funções: criar 
+#usuário (cliente do banco) e criar conta corrente (vincular com usuario) 
+
+#A função saque deve receber argumentos apenas por nome (keylword only). Sugestão
+#de argumentos: saldo,valor, extrato, limite, numero_saque, limite_saques. Sugestão de retorno:
+#saldo e extato.
+
+#A função de depósito deve receber os argumentos apenas por posição (positional only).
+#Sugestão de argumentos: saldo, valor, extrato. Sugestão de retorno: saldo e extrato.
+
+#A função extrato deve receber argumentos por posição e nome (positional only e keylword only).
+#Argumentos posicionais: saldo, argumentos nomeados:extrato
+
+#Criar usuario(cliente). O programa deve armazenar os usuarios em uma lista, um usuario é composto
+#por: nome, data de nascimento, cpf, e endereço. O endereço é uma string com o formato:logradouro - 
+#nro - bairro - cidade/sigla do estado. Deve ser armazenado somete o numero do cpf. Não podemos
+#2 usuarios com o mesmo cpf.
+
+#Criar conta corrente. O programa deve armazenar contas em uma lista, uma conta é composta por: agencia,
+#numero de conta e usuario. O numero de conta é sequencial, iniciando em 1. o numero de agencia
+#é fixo:"0001". O usuario pode ter mais de uma conta, mas uma conta pertence a somente um usuario. 
+
+
+menu = """
+
+[d] Depositar
+[s] Sacar
+[e] Extrato
+[q] Sair
+
+=> """
+
+saldo = 0
+limite = 500
+extrato = ""
+numero_saques = 0
+LIMITE_SAQUES = 3
+
+while True:
+
+    opcao = input(menu)
+
+    if opcao == "d":
+        valor = float(input("Informe o valor do depósito: "))
+
+        if valor > 0:
+            saldo += valor
+            extrato += f"Depósito: R$ {valor:.2f}\n"
+
+        else:
+            print("Operação falhou! O valor informado é inválido.")
+
+    elif opcao == "s":
+        valor = float(input("Informe o valor do saque: "))
+
+        excedeu_saldo = valor > saldo
+
+        excedeu_limite = valor > limite
+
+        excedeu_saques = numero_saques >= LIMITE_SAQUES
+
+        if excedeu_saldo:
+            print("Operação falhou! Você não tem saldo suficiente.")
+
+        elif excedeu_limite:
+            print("Operação falhou! O valor do saque excede o limite.")
+
+        elif excedeu_saques:
+            print("Operação falhou! Número máximo de saques excedido.")
+
+        elif valor > 0:
+            saldo -= valor
+            extrato += f"Saque: R$ {valor:.2f}\n"
+            numero_saques += 1
+
+        else:
+            print("Operação falhou! O valor informado é inválido.")
+
+    elif opcao == "e":
+        print("\n================ EXTRATO ================")
+        print("Não foram realizadas movimentações." if not extrato else extrato)
+        print(f"\nSaldo: R$ {saldo:.2f}")
+        print("==========================================")
+
+    elif opcao == "q":
+        break
+
+    else:
+        print("Operação inválida, por favor selecione novamente a operação desejada.")
+
+
+# Funções de saque, depósito e extrato
+def sacar(*, saldo, valor, extrato, limite, numero_saques, limite_saques):
+    if valor > saldo:
+        print("Saldo insuficiente.")
+    elif valor > limite:
+        print("Valor do saque excede o limite.")
+    elif numero_saques >= limite_saques:
+        print("Número de saques diários excedido.")
+    else:
+        saldo -= valor
+        extrato.append(f"Saque: R$ {valor:.2f}")
+        numero_saques += 1
+
+    return saldo, extrato
+
+def depositar(saldo, valor, extrato, /):
+    if valor > 0:
+        saldo += valor
+        extrato.append(f"Depósito: R$ {valor:.2f}")
+    else:
+        print("Valor de depósito inválido.")
+
+    return saldo, extrato
+
+def exibir_extrato(saldo, /, *, extrato):
+    print("\nExtrato:")
+    for operacao in extrato:
+        print(operacao)
+    print(f"Saldo atual: R$ {saldo:.2f}")
+
+# Função para cadastrar usuário
+usuarios = []
+
+def cadastrar_usuario(nome, data_nascimento, cpf, endereco):
+    for usuario in usuarios:
+        if usuario['cpf'] == cpf:
+            print("Usuário com este CPF já cadastrado.")
+            return
+
+    novo_usuario = {
+        'nome': nome,
+        'data_nascimento': data_nascimento,
+        'cpf': cpf,
+        'endereco': endereco
+    }
+    usuarios.append(novo_usuario)
+    print("Usuário cadastrado com sucesso.")
+
+# Função para cadastrar conta bancária
+contas = []
+numero_conta = 1
+agencia = "0001"
+
+def cadastrar_conta(usuario):
+    global numero_conta
+
+    nova_conta = {
+        'agencia': agencia,
+        'numero_conta': numero_conta,
+        'usuario': usuario
+    }
+    contas.append(nova_conta)
+    numero_conta += 1
+    print("Conta cadastrada com sucesso.")
